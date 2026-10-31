@@ -6,6 +6,7 @@
   --butter: #e9d7a5;
   --crust: #b8732f;
   --oven: #12100d;
+  --open: #4f8a5b;
   --fg: var(--ink);
   --fg-soft: var(--ink-soft);
   --scrim: rgba(243, 236, 224, 0.82);
@@ -103,7 +104,7 @@ a {
 }
 
 .header__nav a,
-.header__order {
+.header__cta {
   text-decoration: none;
 }
 
@@ -113,7 +114,7 @@ a {
   text-underline-offset: 4px;
 }
 
-.header__order {
+.header__cta {
   padding: 9px 18px;
   border-radius: 999px;
   background: var(--ink);
@@ -236,6 +237,29 @@ a {
   color: var(--paper);
 }
 
+/* Live opening status of the boutique (see visit/open-status.js). */
+.open-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--fg);
+}
+
+.open-status__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--fg-soft);
+}
+
+.open-status[data-open='true'] .open-status__dot {
+  background: var(--open);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--open) 22%, transparent);
+}
+
 /* Hero: a butter texture panel that slides off as the dough starts rolling. */
 .story__panel {
   position: absolute;
@@ -257,7 +281,8 @@ a {
   translate: -50% 0;
 }
 
-.chapter__copy--center .btn {
+.chapter__copy--center .btn,
+.chapter__copy--center .open-status {
   justify-self: center;
 }
 
@@ -409,7 +434,7 @@ a {
     display: none;
   }
 
-  .header__order {
+  .header__cta {
     margin-left: auto;
   }
 

@@ -6,6 +6,7 @@ import 'lenis/dist/lenis.css';
 import './style.css';
 import { CanvasRenderer } from './film/canvas-renderer.js';
 import { FrameLoader } from './film/frame-loader.js';
+import { setupOpenStatus } from './visit/open-status.js';
 import { SceneTrack } from './film/scene-track.js';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
@@ -58,25 +59,32 @@ function setupSmoothScroll() {
   return lenis;
 }
 
-// Each chapter scrubs its clip from 'top top' to 'bottom top', so the
-// chapters tile the scroll without gaps. Chapters after the last clip hold
-// its final frame.
-function createFilm(chapters, renderer) {
-  const triggers = chapters.map((chapter) =>
+// Each chapter spans 'top top' to 'bottom top', so the chapters tile the
+// scroll without gaps. A chapter is current from its first pixel, so a jump
+// to a chapter's exact start shows that chapter.
+function createChapterTriggers(chapters) {
+  return chapters.map((chapter) =>
     ScrollTrigger.create({ trigger: chapter, start: 'top top', end: 'bottom top' }),
   );
+}
+
+const currentChapter = (triggers) =>
+  Math.max(0, triggers.findLastIndex((trigger) => trigger.scroll() >= trigger.start));
+
+// Each clip chapter scrubs its clip; chapters after the last clip hold its
+// final frame.
+function createFilm(triggers, renderer) {
   let tracks = [];
 
   return {
     useTracks(next) {
       tracks = next;
     },
-    // Draws the current frame and returns the index of the clip on screen.
-    render() {
+    // Draws the frame for `chapter` and returns the index of the clip shown.
+    render(chapter) {
       if (tracks.length === 0) return 0;
-      const index = Math.max(0, triggers.findLastIndex((trigger) => trigger.progress > 0));
-      const trackIndex = Math.min(index, tracks.length - 1);
-      const progress = index < tracks.length ? triggers[index].progress : 1;
+      const trackIndex = Math.min(chapter, tracks.length - 1);
+      const progress = chapter < tracks.length ? triggers[chapter].progress : 1;
       renderer.draw(tracks[trackIndex].frameAt(progress));
       return trackIndex;
     },
@@ -86,8 +94,8 @@ function createFilm(chapters, renderer) {
 // Shows one chapter's copy at a time, in the same place and over the same
 // scroll range as its clip, and mirrors the chapter's tone and copy alignment
 // on the root element for the colours and the scrim. Each chapter has a
-// progress segment that fills as its clip plays.
-function setupChapters(chapters, lenis) {
+// progress segment that fills as its clip plays. Returns the per-frame update.
+function setupChapters(chapters, triggers, lenis) {
   const copies = gsap.utils.toArray('[data-copy]');
   if (copies.length !== chapters.length) {
     throw new Error(`Found ${copies.length} [data-copy] blocks for ${chapters.length} chapters`);
@@ -101,7 +109,7 @@ function setupChapters(chapters, lenis) {
     step.setAttribute('aria-label', copies[index].querySelector('.chapter__title').innerText.replace(/\s+/g, ' '));
     step.append(Object.assign(document.createElement('span'), { className: 'progress__fill' }));
     step.addEventListener('click', () => {
-      const top = chapter.offsetTop + (index === 0 ? 0 : 1);
+      const top = triggers[index].start;
       if (lenis) lenis.scrollTo(top, { duration: 1.6 });
       else window.scrollTo({ top, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
     });
@@ -109,11 +117,12 @@ function setupChapters(chapters, lenis) {
     return step;
   });
   const fills = steps.map((step) => step.firstElementChild);
+  const filled = fills.map(() => null);
 
   gsap.set(copies.slice(1), { autoAlpha: 0 });
 
   const reveals = copies.map((copy) => {
-    const parts = copy.querySelectorAll('.eyebrow, .chapter__body, .btn');
+    const parts = copy.querySelectorAll('.eyebrow, .chapter__body, .open-status, .btn');
     const split = SplitText.create(copy.querySelector('[data-lines]'), {
       type: 'lines',
       mask: 'lines',
@@ -139,19 +148,16 @@ function setupChapters(chapters, lenis) {
     active = index;
   };
   steps[0].setAttribute('aria-current', 'step');
-
-  chapters.forEach((chapter, index) => {
-    ScrollTrigger.create({
-      trigger: chapter,
-      start: 'top top',
-      end: 'bottom top',
-      onToggle: (self) => self.isActive && activate(index),
-      onRefresh: (self) => gsap.set(fills[index], { scaleX: self.progress }),
-      onUpdate: (self) => gsap.set(fills[index], { scaleX: self.progress }),
-    });
-  });
-
   reveals[0]();
+
+  return (chapter) => {
+    triggers.forEach((trigger, index) => {
+      if (trigger.progress === filled[index]) return;
+      filled[index] = trigger.progress;
+      gsap.set(fills[index], { scaleX: trigger.progress });
+    });
+    activate(chapter);
+  };
 }
 
 // The butter swatch slides off to the right as the first clip starts.
@@ -185,11 +191,11 @@ async function init() {
     return loadersByFormat.get(format);
   };
 
-  const film = createFilm(chapters, new CanvasRenderer(document.querySelector('[data-film]')));
+  const triggers = createChapterTriggers(chapters);
+  const film = createFilm(triggers, new CanvasRenderer(document.querySelector('[data-film]')));
   let loader = loaderFor(currentFormat());
   film.useTracks(loader.tracks);
   loader.start();
-  gsap.ticker.add(() => loader.focus(film.render()));
 
   // Rotating the device switches to the other format's frames, which then
   // get the network to themselves.
@@ -201,7 +207,13 @@ async function init() {
   });
 
   const lenis = setupSmoothScroll();
-  setupChapters(chapters, lenis);
+  const updateChapters = setupChapters(chapters, triggers, lenis);
+  gsap.ticker.add(() => {
+    const chapter = currentChapter(triggers);
+    loader.focus(film.render(chapter));
+    updateChapters(chapter);
+  });
+  setupOpenStatus(document.querySelectorAll('[data-open-status]'));
   animateHeroPanel();
   animateScrollHint();
 }
