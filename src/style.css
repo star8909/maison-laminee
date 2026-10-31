@@ -168,8 +168,12 @@ a {
   transition: background 0.6s ease;
 }
 
-:root[data-align='center'] .story__scrim {
-  background: linear-gradient(180deg, var(--scrim) 0%, transparent 48%);
+/* Portrait frames leave the top clear above the subject, so centred copy
+   sits there; landscape frames fill the width and keep the copy on the left. */
+@media (orientation: portrait) {
+  :root[data-align='center'] .story__scrim {
+    background: linear-gradient(180deg, var(--scrim) 0%, transparent 48%);
+  }
 }
 
 .chapter {
@@ -185,7 +189,7 @@ a {
   z-index: 5;
   display: grid;
   gap: 22px;
-  max-width: min(440px, 32vw);
+  max-width: min(640px, 36vw);
   color: var(--fg);
   transition: color 0.6s ease;
 }
@@ -265,25 +269,30 @@ a {
   position: absolute;
   top: var(--header-height);
   right: 0;
-  bottom: 0;
   z-index: 4;
+  /* An absolutely positioned image keeps its intrinsic height when only top
+     and bottom are set, so the height is given explicitly. */
   width: 26vw;
+  height: calc(100% - var(--header-height));
   object-fit: cover;
 }
 
-/* Finale: the closing line sits centred above the broken croissant. */
-.chapter__copy--center {
-  left: 50%;
-  justify-items: center;
-  max-width: min(720px, calc(100vw - 2 * var(--gutter)));
-  width: max-content;
-  text-align: center;
-  translate: -50% 0;
-}
+/* Finale: on portrait screens the closing line sits centred above the broken
+   croissant. */
+@media (orientation: portrait) {
+  .chapter__copy--center {
+    left: 50%;
+    justify-items: center;
+    max-width: min(720px, calc(100vw - 2 * var(--gutter)));
+    width: max-content;
+    text-align: center;
+    translate: -50% 0;
+  }
 
-.chapter__copy--center .btn,
-.chapter__copy--center .open-status {
-  justify-self: center;
+  .chapter__copy--center .btn,
+  .chapter__copy--center .open-status {
+    justify-self: center;
+  }
 }
 
 /* Scroll cue: shown on the first screen until the film starts moving. */

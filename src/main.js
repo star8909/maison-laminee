@@ -60,11 +60,17 @@ function setupSmoothScroll() {
 }
 
 // Each chapter spans 'top top' to 'bottom top', so the chapters tile the
-// scroll without gaps. A chapter is current from its first pixel, so a jump
-// to a chapter's exact start shows that chapter.
+// scroll without gaps. The last one ends at the bottom of the page instead:
+// the footer is shorter than a screen, so its 'bottom top' is never reached
+// and its progress segment would never fill. A chapter is current from its
+// first pixel, so a jump to a chapter's exact start shows that chapter.
 function createChapterTriggers(chapters) {
-  return chapters.map((chapter) =>
-    ScrollTrigger.create({ trigger: chapter, start: 'top top', end: 'bottom top' }),
+  return chapters.map((chapter, index) =>
+    ScrollTrigger.create({
+      trigger: chapter,
+      start: 'top top',
+      end: index === chapters.length - 1 ? 'max' : 'bottom top',
+    }),
   );
 }
 
