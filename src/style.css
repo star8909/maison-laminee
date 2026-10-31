@@ -13,8 +13,19 @@
   --sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --gutter: clamp(16px, 4vw, 64px);
   --header-height: 104px;
-  --progress-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  /* Bottom-anchored stage controls clear the browser toolbar when it is shown
+     (see the @supports rule below). */
+  --toolbar-overlap: 0px;
+  --progress-bottom: calc(max(20px, env(safe-area-inset-bottom, 0px)) + var(--toolbar-overlap));
   color-scheme: light;
+}
+
+/* The stage is sized to the largest viewport, so on mobile its lowest strip
+   sits behind the browser toolbar while the toolbar is shown. */
+@supports (height: 100lvh) {
+  :root {
+    --toolbar-overlap: calc(100lvh - 100svh);
+  }
 }
 
 /* The baking chapter plays on a dark oven backdrop. */
@@ -130,8 +141,10 @@ a {
   top: 0;
   z-index: 1;
   align-self: start;
+  /* The largest viewport keeps the stage covering the screen while the mobile
+     toolbar slides away, without resizing the canvas mid-scroll. */
   height: 100vh;
-  height: 100dvh;
+  height: 100lvh;
   overflow: clip;
 }
 

@@ -13,10 +13,15 @@ export class CanvasRenderer {
     window.addEventListener('resize', () => this.resize());
   }
 
+  // Reallocating the canvas clears it, so it only happens when the drawing
+  // size actually changes (mobile toolbars fire resize events while scrolling).
   resize() {
     const ratio = Math.min(window.devicePixelRatio || 1, MAX_PIXEL_RATIO);
-    this.canvas.width = Math.round(this.canvas.clientWidth * ratio);
-    this.canvas.height = Math.round(this.canvas.clientHeight * ratio);
+    const width = Math.round(this.canvas.clientWidth * ratio);
+    const height = Math.round(this.canvas.clientHeight * ratio);
+    if (width === this.canvas.width && height === this.canvas.height) return;
+    this.canvas.width = width;
+    this.canvas.height = height;
     this.context.imageSmoothingQuality = 'high';
     this.last = null;
   }
