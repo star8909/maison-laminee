@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maison Laminée — Croissants crafted in layers</title>
+    <meta
+      name="description"
+      content="Maison Laminée bakes all-butter croissants by hand: rolled, folded, shaped and baked to rise."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="header">
+      <p class="header__bar">
+        <span>Laminated by hand in Paris · Baked fresh every morning</span>
+        <a href="#visit">Find a boutique</a>
+      </p>
+      <div class="header__main">
+        <a class="header__logo" href="#top">Maison Laminée</a>
+        <nav class="header__nav" aria-label="Primary">
+          <a href="#viennoiserie">Viennoiserie</a>
+          <a href="#craft">Craft</a>
+          <a href="#ingredients">Ingredients</a>
+          <a href="#visit">Story</a>
+        </nav>
+        <a class="header__order" href="#visit">Order</a>
+      </div>
+    </header>
+
+    <!-- The canvas plays one continuous film. Each [data-clip] chapter scrubs the
+         frames in src/assets/clips/<id>/ across its scroll length (--length, in
+         viewport heights); the last chapter holds the final frame.
+         data-tone="dark" marks chapters filmed on a dark backdrop; data-align="center"
+         centres the copy at the top instead of the left. -->
+    <main class="story" id="top">
+      <canvas class="story__canvas" data-film aria-hidden="true"></canvas>
+      <div class="story__scrim" aria-hidden="true"></div>
+
+      <section class="chapter" data-clip="rolling" style="--length: 240">
+        <div class="chapter__copy" data-copy>
+          <p class="eyebrow">Premium artisans</p>
+          <h1 class="chapter__title" data-lines>Crafted in<br />layers.</h1>
+          <p class="chapter__body">
+            Every croissant begins as a single ball of dough and a block of cold Normandy butter.
+          </p>
+          <a class="btn" href="#visit">Shop now</a>
+        </div>
+        <img
+          class="chapter__panel"
+          src="/src/assets/butter-swatch.webp"
+          alt="Softened butter swept into glossy swirls"
+          data-panel
+        />
+      </section>
+
+      <section class="chapter" id="craft" data-clip="folding" style="--length: 240">
+        <div class="chapter__copy" data-copy>
+          <p class="eyebrow">Lamination</p>
+          <h2 class="chapter__title" data-lines>Layer by<br />layer.</h2>
+          <p class="chapter__body">
+            Three letter folds, chilled between each turn. Twenty-seven sheets of butter, none
+            of them touching.
+          </p>
+        </div>
+      </section>
+
+      <section class="chapter" id="viennoiserie" data-clip="shaping" style="--length: 240">
+        <div class="chapter__copy" data-copy>
+          <p class="eyebrow">Façonnage</p>
+          <h2 class="chapter__title" data-lines>Shaped by<br />hand.</h2>
+          <p class="chapter__body">
+            Cut into long triangles and rolled from base to tip, so the layers spiral around the
+            centre.
+          </p>
+        </div>
+      </section>
+
+      <section class="chapter" data-clip="baking" data-tone="dark" style="--length: 240">
+        <div class="chapter__copy" data-copy>
+          <p class="eyebrow">Cuisson</p>
+          <h2 class="chapter__title" data-lines>Baked to<br />rise.</h2>
+          <p class="chapter__body">
+            Eighteen minutes at 190&nbsp;°C. The water in the butter turns to steam and lifts every
+            layer apart.
+          </p>
+        </div>
+      </section>
+
+      <section class="chapter" id="ingredients" data-clip="breaking" style="--length: 240">
+        <div class="chapter__copy" data-copy>
+          <p class="eyebrow">The crumb</p>
+          <h2 class="chapter__title" data-lines>Made to<br />flake.</h2>
+          <p class="chapter__body">
+            Flour, water, milk, sugar, salt, yeast and 25&nbsp;% butter. Nothing else, and
+            nothing to hide.
+          </p>
+        </div>
+      </section>
+
+      <section class="chapter chapter--finale" id="visit" data-align="center" style="--length: 140">
+        <div class="chapter__copy" data-copy>
+          <h2 class="chapter__title" data-lines>Layers worth<br />breaking.</h2>
+          <p class="chapter__body">
+            Order by 6&nbsp;pm and collect warm from the oven the next morning.
+          </p>
+          <a class="btn" href="#visit">Order for tomorrow</a>
+        </div>
+      </section>
+    </main>
+
+    <nav class="progress" aria-label="Chapters" data-progress></nav>
+
+    <footer class="footer">
+      <div class="footer__brand">
+        <p class="header__logo">Maison Laminée</p>
+        <p>Viennoiserie au beurre, since 2026.</p>
+      </div>
+      <dl class="footer__info">
+        <div>
+          <dt>Boutique</dt>
+          <dd>Rue des Martyrs, Paris 9e</dd>
+        </div>
+        <div>
+          <dt>Hours</dt>
+          <dd>Tue–Sun · 7:00–14:00</dd>
+        </div>
+        <div>
+          <dt>Orders</dt>
+          <dd>By 18:00 for the next morning</dd>
+        </div>
+      </dl>
+    </footer>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
