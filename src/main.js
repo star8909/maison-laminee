@@ -5,6 +5,7 @@ import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 import './style.css';
 import { CanvasRenderer } from './film/canvas-renderer.js';
+import { FrameLoader } from './film/frame-loader.js';
 import { SceneTrack } from './film/scene-track.js';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
@@ -47,17 +48,6 @@ function createTracks(clipIds, format) {
   });
 }
 
-// Loads every clip's first and last frames up front so chapter boundaries
-// are never blank, then fills in the clips in story order.
-async function preload(tracks) {
-  for (const track of tracks) {
-    if (!track.isEmpty) await track.loadFrames([0, track.urls.length - 1]);
-  }
-  for (const track of tracks) {
-    await track.loadFrames(track.urls.map((_, index) => index));
-  }
-}
-
 function setupSmoothScroll() {
   if (prefersReducedMotion) return null;
 
@@ -81,12 +71,14 @@ function createFilm(chapters, renderer) {
     useTracks(next) {
       tracks = next;
     },
+    // Draws the current frame and returns the index of the clip on screen.
     render() {
-      if (tracks.length === 0) return;
+      if (tracks.length === 0) return 0;
       const index = Math.max(0, triggers.findLastIndex((trigger) => trigger.progress > 0));
-      const track = tracks[Math.min(index, tracks.length - 1)];
+      const trackIndex = Math.min(index, tracks.length - 1);
       const progress = index < tracks.length ? triggers[index].progress : 1;
-      renderer.draw(track.frameAt(progress));
+      renderer.draw(tracks[trackIndex].frameAt(progress));
+      return trackIndex;
     },
   };
 }
@@ -185,21 +177,27 @@ async function init() {
 
   const chapters = gsap.utils.toArray('.chapter');
   const clipIds = chapters.map((chapter) => chapter.dataset.clip).filter(Boolean);
-  const tracksByFormat = new Map();
-  const tracksFor = (format) => {
-    if (!tracksByFormat.has(format)) tracksByFormat.set(format, createTracks(clipIds, format));
-    return tracksByFormat.get(format);
+  const loadersByFormat = new Map();
+  const loaderFor = (format) => {
+    if (!loadersByFormat.has(format)) {
+      loadersByFormat.set(format, new FrameLoader(createTracks(clipIds, format)));
+    }
+    return loadersByFormat.get(format);
   };
 
   const film = createFilm(chapters, new CanvasRenderer(document.querySelector('[data-film]')));
-  film.useTracks(tracksFor(currentFormat()));
-  gsap.ticker.add(() => film.render());
-  preload(tracksFor(currentFormat()));
+  let loader = loaderFor(currentFormat());
+  film.useTracks(loader.tracks);
+  loader.start();
+  gsap.ticker.add(() => loader.focus(film.render()));
 
-  // Rotating the device switches to the other format's frames.
+  // Rotating the device switches to the other format's frames, which then
+  // get the network to themselves.
   portraitQuery.addEventListener('change', () => {
-    film.useTracks(tracksFor(currentFormat()));
-    preload(tracksFor(currentFormat()));
+    loader.pause();
+    loader = loaderFor(currentFormat());
+    film.useTracks(loader.tracks);
+    loader.start();
   });
 
   const lenis = setupSmoothScroll();
