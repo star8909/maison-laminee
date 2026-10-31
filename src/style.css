@@ -112,14 +112,31 @@ a {
   text-transform: uppercase;
 }
 
-/* Story: one fixed canvas behind a stack of scroll-length chapters */
+/* Story: a pinned stage over a stack of scroll-length chapters. Both share
+   one grid cell, so the stage sticks for the whole story and scrolls away
+   with its last screen instead of sitting under the footer. */
 
 .story {
-  position: relative;
+  display: grid;
+}
+
+.story__stage,
+.story__chapters {
+  grid-area: 1 / 1;
+}
+
+.story__stage {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  align-self: start;
+  height: 100vh;
+  height: 100dvh;
+  overflow: clip;
 }
 
 .story__canvas {
-  position: fixed;
+  position: absolute;
   inset: 0;
   display: block;
   width: 100%;
@@ -129,7 +146,7 @@ a {
 
 /* Keeps the copy legible where the film pushes in close behind it. */
 .story__scrim {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 3;
   background: linear-gradient(90deg, var(--scrim) 0%, transparent 52%);
@@ -148,7 +165,7 @@ a {
 
 /* Copy swaps in place while its chapter is on screen (see main.js). */
 .chapter__copy {
-  position: fixed;
+  position: absolute;
   top: calc(var(--header-height) + 8svh);
   left: var(--gutter);
   z-index: 5;
@@ -207,18 +224,18 @@ a {
 }
 
 /* Hero: a butter texture panel that slides off as the dough starts rolling. */
-.chapter__panel {
-  position: fixed;
+.story__panel {
+  position: absolute;
   top: var(--header-height);
   right: 0;
+  bottom: 0;
   z-index: 4;
   width: 26vw;
-  height: calc(100svh - var(--header-height));
   object-fit: cover;
 }
 
 /* Finale: the closing line sits centred above the broken croissant. */
-.chapter--finale .chapter__copy {
+.chapter__copy--center {
   left: 50%;
   justify-items: center;
   max-width: min(720px, calc(100vw - 2 * var(--gutter)));
@@ -227,14 +244,14 @@ a {
   translate: -50% 0;
 }
 
-.chapter--finale .btn {
+.chapter__copy--center .btn {
   justify-self: center;
 }
 
 /* Scroll cue: shown on the first screen until the film starts moving. */
 
 .scroll-hint {
-  position: fixed;
+  position: absolute;
   bottom: calc(var(--progress-bottom) + 40px);
   left: 50%;
   z-index: 5;
@@ -285,7 +302,7 @@ a {
 /* Chapter progress: one segment per chapter, filled by scroll. */
 
 .progress {
-  position: fixed;
+  position: absolute;
   bottom: var(--progress-bottom);
   left: 50%;
   z-index: 5;
@@ -383,7 +400,7 @@ a {
     margin-left: auto;
   }
 
-  .chapter__panel {
+  .story__panel {
     display: none;
   }
 }

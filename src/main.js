@@ -96,12 +96,17 @@ function createFilm(chapters, renderer) {
 // on the root element for the colours and the scrim. Each chapter has a
 // progress segment that fills as its clip plays.
 function setupChapters(chapters, lenis) {
+  const copies = gsap.utils.toArray('[data-copy]');
+  if (copies.length !== chapters.length) {
+    throw new Error(`Found ${copies.length} [data-copy] blocks for ${chapters.length} chapters`);
+  }
+
   const progress = document.querySelector('[data-progress]');
   const steps = chapters.map((chapter, index) => {
     const step = document.createElement('button');
     step.type = 'button';
     step.className = 'progress__step';
-    step.setAttribute('aria-label', chapter.querySelector('.chapter__title').innerText.replace(/\s+/g, ' '));
+    step.setAttribute('aria-label', copies[index].querySelector('.chapter__title').innerText.replace(/\s+/g, ' '));
     step.append(Object.assign(document.createElement('span'), { className: 'progress__fill' }));
     step.addEventListener('click', () => {
       const top = chapter.offsetTop + (index === 0 ? 0 : 1);
@@ -113,7 +118,6 @@ function setupChapters(chapters, lenis) {
   });
   const fills = steps.map((step) => step.firstElementChild);
 
-  const copies = chapters.map((chapter) => chapter.querySelector('[data-copy]'));
   gsap.set(copies.slice(1), { autoAlpha: 0 });
 
   const reveals = copies.map((copy) => {

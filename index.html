@@ -33,93 +33,95 @@
       </div>
     </header>
 
-    <!-- The canvas plays one continuous film. Each [data-clip] chapter scrubs the
-         frames in src/assets/clips/<id>/ across its scroll length (--length, in
-         viewport heights); the last chapter holds the final frame.
-         data-tone="dark" marks chapters filmed on a dark backdrop; data-align="center"
-         centres the copy at the top instead of the left. -->
+    <!-- The stage stays pinned while the story scrolls and plays one continuous
+         film on its canvas. Each [data-clip] chapter below scrubs the frames in
+         src/assets/clips/<id>/ across its scroll length (--length, in viewport
+         heights); the last chapter holds the final frame. The stage scrolls away
+         with the end of the story, so the footer never covers the film.
+         The [data-copy] blocks pair with the chapters in order; data-tone="dark"
+         marks chapters filmed on a dark backdrop and data-align="center" centres
+         the copy at the top instead of the left. -->
     <main class="story" id="top">
-      <canvas class="story__canvas" data-film aria-hidden="true"></canvas>
-      <div class="story__scrim" aria-hidden="true"></div>
+      <div class="story__stage">
+        <canvas class="story__canvas" data-film aria-hidden="true"></canvas>
+        <div class="story__scrim" aria-hidden="true"></div>
+        <img
+          class="story__panel"
+          src="/src/assets/butter-swatch.webp"
+          alt="Softened butter swept into glossy swirls"
+          data-panel
+        />
 
-      <section class="chapter" data-clip="rolling" style="--length: 240">
         <div class="chapter__copy" data-copy>
           <p class="eyebrow">Premium artisans</p>
-          <h1 class="chapter__title" data-lines>Crafted in<br />layers.</h1>
+          <h1 class="chapter__title" id="title-rolling" data-lines>Crafted in<br />layers.</h1>
           <p class="chapter__body">
             Every croissant begins as a single ball of dough and a block of cold Normandy butter.
           </p>
           <a class="btn" href="#visit">Shop now</a>
         </div>
-        <img
-          class="chapter__panel"
-          src="/src/assets/butter-swatch.webp"
-          alt="Softened butter swept into glossy swirls"
-          data-panel
-        />
-      </section>
 
-      <section class="chapter" id="craft" data-clip="folding" style="--length: 240">
         <div class="chapter__copy" data-copy>
           <p class="eyebrow">Lamination</p>
-          <h2 class="chapter__title" data-lines>Layer by<br />layer.</h2>
+          <h2 class="chapter__title" id="title-folding" data-lines>Layer by<br />layer.</h2>
           <p class="chapter__body">
             Three letter folds, chilled between each turn. Twenty-seven sheets of butter, none
             of them touching.
           </p>
         </div>
-      </section>
 
-      <section class="chapter" id="viennoiserie" data-clip="shaping" style="--length: 240">
         <div class="chapter__copy" data-copy>
           <p class="eyebrow">Façonnage</p>
-          <h2 class="chapter__title" data-lines>Shaped by<br />hand.</h2>
+          <h2 class="chapter__title" id="title-shaping" data-lines>Shaped by<br />hand.</h2>
           <p class="chapter__body">
             Cut into long triangles and rolled from base to tip, so the layers spiral around the
             centre.
           </p>
         </div>
-      </section>
 
-      <section class="chapter" data-clip="baking" data-tone="dark" style="--length: 240">
         <div class="chapter__copy" data-copy>
           <p class="eyebrow">Cuisson</p>
-          <h2 class="chapter__title" data-lines>Baked to<br />rise.</h2>
+          <h2 class="chapter__title" id="title-baking" data-lines>Baked to<br />rise.</h2>
           <p class="chapter__body">
             Eighteen minutes at 190&nbsp;°C. The water in the butter turns to steam and lifts every
             layer apart.
           </p>
         </div>
-      </section>
 
-      <section class="chapter" id="ingredients" data-clip="breaking" style="--length: 240">
         <div class="chapter__copy" data-copy>
           <p class="eyebrow">The crumb</p>
-          <h2 class="chapter__title" data-lines>Made to<br />flake.</h2>
+          <h2 class="chapter__title" id="title-breaking" data-lines>Made to<br />flake.</h2>
           <p class="chapter__body">
             Flour, water, milk, sugar, salt, yeast and 25&nbsp;% butter. Nothing else, and
             nothing to hide.
           </p>
         </div>
-      </section>
 
-      <section class="chapter chapter--finale" id="visit" data-align="center" style="--length: 140">
-        <div class="chapter__copy" data-copy>
-          <h2 class="chapter__title" data-lines>Layers worth<br />breaking.</h2>
+        <div class="chapter__copy chapter__copy--center" data-copy>
+          <h2 class="chapter__title" id="title-finale" data-lines>Layers worth<br />breaking.</h2>
           <p class="chapter__body">
             Order by 6&nbsp;pm and collect warm from the oven the next morning.
           </p>
           <a class="btn" href="#visit">Order for tomorrow</a>
         </div>
-      </section>
+
+        <div class="scroll-hint" data-scroll-hint aria-hidden="true">
+          <span>Scroll to bake</span>
+          <span class="scroll-hint__track"></span>
+        </div>
+
+        <nav class="progress" aria-label="Chapters" data-progress></nav>
+      </div>
+
+      <div class="story__chapters">
+        <section class="chapter" data-clip="rolling" aria-labelledby="title-rolling" style="--length: 240"></section>
+        <section class="chapter" id="craft" data-clip="folding" aria-labelledby="title-folding" style="--length: 240"></section>
+        <section class="chapter" id="viennoiserie" data-clip="shaping" aria-labelledby="title-shaping" style="--length: 240"></section>
+        <section class="chapter" data-clip="baking" data-tone="dark" aria-labelledby="title-baking" style="--length: 240"></section>
+        <section class="chapter" id="ingredients" data-clip="breaking" aria-labelledby="title-breaking" style="--length: 240"></section>
+        <section class="chapter" id="visit" data-align="center" aria-labelledby="title-finale" style="--length: 140"></section>
+      </div>
     </main>
-
-    <div class="scroll-hint" data-scroll-hint aria-hidden="true">
-      <span>Scroll to bake</span>
-      <span class="scroll-hint__track"></span>
-    </div>
-
-    <nav class="progress" aria-label="Chapters" data-progress></nav>
 
     <footer class="footer">
       <div class="footer__brand">
