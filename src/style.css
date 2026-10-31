@@ -67,18 +67,12 @@ a {
 
 .header__bar {
   display: flex;
-  justify-content: space-between;
-  gap: 16px;
+  justify-content: center;
   padding: 8px var(--gutter);
   background: var(--cream);
   font-size: 11px;
   letter-spacing: 0.06em;
   color: var(--ink-soft);
-}
-
-.header__bar a {
-  flex-shrink: 0;
-  text-decoration: none;
 }
 
 .header__main {
@@ -264,17 +258,33 @@ a {
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--open) 22%, transparent);
 }
 
-/* Hero: a butter texture panel that slides off as the dough starts rolling. */
+/* Hero: a captioned butter card beside the dough that lifts away as the dough
+   starts rolling. */
 .story__panel {
   position: absolute;
-  top: var(--header-height);
-  right: 0;
+  right: var(--gutter);
+  bottom: calc(var(--progress-bottom) + 24px);
   z-index: 4;
-  /* An absolutely positioned image keeps its intrinsic height when only top
-     and bottom are set, so the height is given explicitly. */
-  width: 26vw;
-  height: calc(100% - var(--header-height));
+  display: grid;
+  gap: 12px;
+  width: clamp(180px, 15vw, 260px);
+  margin: 0;
+}
+
+.story__panel img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
   object-fit: cover;
+  box-shadow: 0 24px 48px -24px rgba(29, 25, 19, 0.45);
+}
+
+.story__panel figcaption {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-soft);
 }
 
 /* Finale: on portrait screens the closing line sits centred above the broken

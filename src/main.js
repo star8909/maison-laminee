@@ -166,10 +166,11 @@ function setupChapters(chapters, triggers, lenis) {
   };
 }
 
-// The butter swatch slides off to the right as the first clip starts.
+// The butter card lifts away and fades as the first clip starts.
 function animateHeroPanel() {
   gsap.to('[data-panel]', {
-    xPercent: 100,
+    autoAlpha: 0,
+    yPercent: -12,
     ease: 'power2.inOut',
     scrollTrigger: { trigger: '[data-clip]', start: 'top top', end: '35% top', scrub: 1 },
   });
