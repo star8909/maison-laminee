@@ -13,6 +13,7 @@
   --sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --gutter: clamp(16px, 4vw, 64px);
   --header-height: 104px;
+  --progress-bottom: max(20px, env(safe-area-inset-bottom, 0px));
   color-scheme: light;
 }
 
@@ -230,22 +231,72 @@ a {
   justify-self: center;
 }
 
-/* Chapter dots */
+/* Scroll cue: shown on the first screen until the film starts moving. */
+
+.scroll-hint {
+  position: fixed;
+  bottom: calc(var(--progress-bottom) + 40px);
+  left: 50%;
+  z-index: 5;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  translate: -50% 0;
+  color: var(--fg);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.scroll-hint__track {
+  position: relative;
+  width: 2px;
+  height: 56px;
+  border-radius: 1px;
+  overflow: hidden;
+  background: color-mix(in srgb, currentColor 25%, transparent);
+}
+
+.scroll-hint__track::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  animation: scroll-hint 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes scroll-hint {
+  from {
+    translate: 0 -100%;
+  }
+  to {
+    translate: 0 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-hint__track::after {
+    animation: none;
+  }
+}
+
+/* Chapter progress: one segment per chapter, filled by scroll. */
 
 .progress {
   position: fixed;
-  bottom: 28px;
+  bottom: var(--progress-bottom);
   left: 50%;
   z-index: 5;
   display: flex;
-  gap: 4px;
+  gap: 6px;
+  width: min(320px, calc(100% - 2 * var(--gutter)));
   translate: -50% 0;
 }
 
-.progress__dot {
-  display: grid;
-  place-items: center;
-  width: 24px;
+.progress__step {
+  flex: 1;
   height: 24px;
   padding: 0;
   border: 0;
@@ -254,23 +305,28 @@ a {
   cursor: pointer;
 }
 
-.progress__dot::before {
+/* The bar is drawn inside the taller tap target. */
+.progress__step::before,
+.progress__fill {
+  display: block;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.progress__step::before {
   content: '';
-  width: 7px;
-  height: 7px;
-  border: 1px solid currentColor;
-  border-radius: 50%;
-  transition:
-    background-color 0.3s,
-    transform 0.3s;
+  background: color-mix(in srgb, currentColor 22%, transparent);
+  transition: color 0.6s ease;
 }
 
-.progress__dot[aria-current='step']::before {
+.progress__fill {
+  margin-top: -3px;
   background: currentColor;
-  transform: scale(1.15);
+  transform: scaleX(0);
+  transform-origin: left;
 }
 
-.progress__dot:focus-visible {
+.progress__step:focus-visible {
   outline: 1px solid currentColor;
   outline-offset: 2px;
 }

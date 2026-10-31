@@ -93,22 +93,25 @@ function createFilm(chapters, renderer) {
 
 // Shows one chapter's copy at a time, in the same place and over the same
 // scroll range as its clip, and mirrors the chapter's tone and copy alignment
-// on the root element for the colours and the scrim.
+// on the root element for the colours and the scrim. Each chapter has a
+// progress segment that fills as its clip plays.
 function setupChapters(chapters, lenis) {
   const progress = document.querySelector('[data-progress]');
-  const dots = chapters.map((chapter, index) => {
-    const dot = document.createElement('button');
-    dot.type = 'button';
-    dot.className = 'progress__dot';
-    dot.setAttribute('aria-label', chapter.querySelector('.chapter__title').innerText.replace(/\s+/g, ' '));
-    dot.addEventListener('click', () => {
+  const steps = chapters.map((chapter, index) => {
+    const step = document.createElement('button');
+    step.type = 'button';
+    step.className = 'progress__step';
+    step.setAttribute('aria-label', chapter.querySelector('.chapter__title').innerText.replace(/\s+/g, ' '));
+    step.append(Object.assign(document.createElement('span'), { className: 'progress__fill' }));
+    step.addEventListener('click', () => {
       const top = chapter.offsetTop + (index === 0 ? 0 : 1);
       if (lenis) lenis.scrollTo(top, { duration: 1.6 });
       else window.scrollTo({ top, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
     });
-    progress.append(dot);
-    return dot;
+    progress.append(step);
+    return step;
   });
+  const fills = steps.map((step) => step.firstElementChild);
 
   const copies = chapters.map((chapter) => chapter.querySelector('[data-copy]'));
   gsap.set(copies.slice(1), { autoAlpha: 0 });
@@ -133,13 +136,13 @@ function setupChapters(chapters, lenis) {
     gsap.to(copies[active], { autoAlpha: 0, duration: 0.35, ease: 'power2.out', overwrite: true });
     gsap.to(copies[index], { autoAlpha: 1, duration: 0.35, ease: 'power2.out', overwrite: true });
     reveals[index]();
-    dots[active].removeAttribute('aria-current');
-    dots[index].setAttribute('aria-current', 'step');
+    steps[active].removeAttribute('aria-current');
+    steps[index].setAttribute('aria-current', 'step');
     document.documentElement.dataset.tone = chapters[index].dataset.tone ?? 'light';
     document.documentElement.dataset.align = chapters[index].dataset.align ?? 'left';
     active = index;
   };
-  dots[0].setAttribute('aria-current', 'step');
+  steps[0].setAttribute('aria-current', 'step');
 
   chapters.forEach((chapter, index) => {
     ScrollTrigger.create({
@@ -147,6 +150,8 @@ function setupChapters(chapters, lenis) {
       start: 'top top',
       end: 'bottom top',
       onToggle: (self) => self.isActive && activate(index),
+      onRefresh: (self) => gsap.set(fills[index], { scaleX: self.progress }),
+      onUpdate: (self) => gsap.set(fills[index], { scaleX: self.progress }),
     });
   });
 
@@ -159,6 +164,15 @@ function animateHeroPanel() {
     xPercent: 100,
     ease: 'power2.inOut',
     scrollTrigger: { trigger: '[data-clip]', start: 'top top', end: '35% top', scrub: 1 },
+  });
+}
+
+// The scroll cue fades out with the first swipe and returns at the top.
+function animateScrollHint() {
+  gsap.to('[data-scroll-hint]', {
+    autoAlpha: 0,
+    ease: 'none',
+    scrollTrigger: { trigger: '[data-clip]', start: 'top top', end: '8% top', scrub: true },
   });
 }
 
@@ -187,6 +201,7 @@ async function init() {
   const lenis = setupSmoothScroll();
   setupChapters(chapters, lenis);
   animateHeroPanel();
+  animateScrollHint();
 }
 
 init();
