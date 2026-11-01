@@ -18,6 +18,27 @@ const ASSET_NOT_READY = /still being prepared/i;
 
 class AssetNotReadyError extends Error {}
 
+// A failed fetch() carries no status; the reason (a reset connection, a DNS
+// failure) is in its cause.
+const describeNetworkError = (error) =>
+  error.cause ? `${error.message} (${error.cause.code ?? error.cause.message})` : error.message;
+
+// Network failures have no response, so only reads are retried: a POST may
+// already have reached Atlas and started a paid generation.
+async function fetchWithRetry(url, init, label) {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await fetch(url, init);
+    } catch (error) {
+      const method = init?.method ?? 'GET';
+      if (method !== 'GET' || attempt >= MAX_ATTEMPTS) {
+        throw new Error(`${label} failed: ${describeNetworkError(error)}`, { cause: error });
+      }
+      await sleep(2 ** attempt * 1000);
+    }
+  }
+}
+
 export class AtlasClient {
   constructor(apiKey) {
     if (!apiKey) {
@@ -26,19 +47,23 @@ export class AtlasClient {
     this.apiKey = apiKey;
   }
 
-  // Sends a request, retrying rate limits and transient server errors with
-  // exponential backoff.
+  // Sends a request, retrying rate limits, transient server errors and (for
+  // reads) network failures with exponential backoff.
   async request(method, endpoint, body) {
     const isForm = body instanceof FormData;
     for (let attempt = 1; ; attempt++) {
-      const response = await fetch(`${BASE_URL}${endpoint}`, {
-        method,
-        headers: {
-          Authorization: `Bearer ${this.apiKey}`,
-          ...(body && !isForm ? { 'Content-Type': 'application/json' } : {}),
+      const response = await fetchWithRetry(
+        `${BASE_URL}${endpoint}`,
+        {
+          method,
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+            ...(body && !isForm ? { 'Content-Type': 'application/json' } : {}),
+          },
+          body: body && !isForm ? JSON.stringify(body) : body,
         },
-        body: body && !isForm ? JSON.stringify(body) : body,
-      });
+        `Atlas Cloud ${method} ${endpoint}`,
+      );
 
       if (RETRYABLE_STATUS.has(response.status) && attempt < MAX_ATTEMPTS) {
         await sleep(2 ** attempt * 1000);
@@ -108,7 +133,7 @@ export class AtlasClient {
 }
 
 export async function download(url, destination) {
-  const response = await fetch(url);
+  const response = await fetchWithRetry(url, undefined, `Download of ${url}`);
   if (!response.ok || !response.body) {
     throw new Error(`Download of ${url} failed: HTTP ${response.status}`);
   }
