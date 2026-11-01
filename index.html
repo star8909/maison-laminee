@@ -3,164 +3,253 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Maison Laminée — Croissants crafted in layers</title>
+    <title>Maison Laminée — Croissants laminated by hand, Paris 9e</title>
     <meta
       name="description"
-      content="Maison Laminée bakes all-butter croissants by hand: rolled, folded, shaped and baked to rise."
+      content="Maison Laminée laminates all-butter croissants by hand on Rue des Martyrs, Paris 9e. Open Tuesday to Sunday, 7:00 to 14:00."
     />
+    <meta name="theme-color" content="#0c0a08" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230c0a08'/%3E%3Ctext x='16' y='24' font-size='22' text-anchor='middle' fill='%23c9a45a' font-family='serif'%3EL%3C/text%3E%3C/svg%3E" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:ital@0;1&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Imbue:wght@400&family=Albert+Sans:wght@400;500&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
-    <header class="header">
-      <p class="header__bar">
-        <span>Laminated by hand in Paris · Baked fresh every morning</span>
-      </p>
-      <div class="header__main">
-        <a class="header__logo" href="#top">Maison Laminée</a>
-        <nav class="header__nav" aria-label="Primary">
-          <a href="#viennoiserie">Viennoiserie</a>
-          <a href="#craft">Craft</a>
-          <a href="#ingredients">Ingredients</a>
-          <a href="#visit">Story</a>
-        </nav>
-        <a class="header__cta" href="https://www.google.com/maps/search/?api=1&amp;query=Rue+des+Martyrs%2C+75009+Paris" target="_blank" rel="noopener">Directions</a>
-      </div>
-    </header>
-
-    <!-- The stage stays pinned while the story scrolls and plays one continuous
-         film on its canvas. Each [data-clip] chapter below scrubs the frames in
+    <!-- The stage stays pinned while the story scrolls: the film plays in its
+         upper band and the copy for the current chapter sits in the dark band
+         below it. Each [data-clip] chapter scrubs the frames in
          src/assets/clips/<id>/ across its scroll length (--length, in viewport
-         heights); the last chapter holds the final frame. The stage scrolls away
-         with the end of the story, so the footer never covers the film.
-         The [data-copy] blocks pair with the chapters in order; data-tone="dark"
-         marks chapters filmed on a dark backdrop and data-align="center" centres
-         the copy at the top instead of the left on portrait screens. -->
+         heights); the last chapter holds the final frame. The [data-copy]
+         blocks pair with the chapters in order. -->
     <main class="story" id="top">
       <div class="story__stage">
-        <canvas class="story__canvas" data-film aria-hidden="true"></canvas>
-        <div class="story__scrim" aria-hidden="true"></div>
-        <figure class="story__panel" data-panel>
-          <img src="/src/assets/butter-swatch.webp" alt="Softened butter swept into glossy swirls" />
-          <figcaption>Normandy butter · 82&nbsp;% fat</figcaption>
-        </figure>
-
-        <div class="chapter__copy" data-copy>
-          <p class="eyebrow">Premium artisans</p>
-          <h1 class="chapter__title" id="title-rolling" data-lines>Crafted in<br />layers.</h1>
-          <p class="chapter__body">
-            Every croissant begins as a single ball of dough and a block of cold Normandy butter.
-          </p>
-          <p
-            class="open-status"
-            data-open-status
-            data-timezone="Europe/Paris"
-            data-days="2,3,4,5,6,0"
-            data-opens="07:00"
-            data-closes="14:00"
-          >
-            <span class="open-status__dot" aria-hidden="true"></span>
-            <span data-open-text>Tue–Sun · 7:00–14:00</span>
-          </p>
-          <a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Rue+des+Martyrs%2C+75009+Paris" target="_blank" rel="noopener">Get directions</a>
+        <div class="story__film">
+          <canvas class="story__canvas" data-film aria-hidden="true"></canvas>
+          <nav class="nav" aria-label="Primary">
+            <a href="#process">Process</a>
+            <a href="#counter">Counter</a>
+            <a href="#visit">Visit</a>
+          </nav>
         </div>
 
-        <div class="chapter__copy" data-copy>
-          <p class="eyebrow">Lamination</p>
-          <h2 class="chapter__title" id="title-folding" data-lines>Layer by<br />layer.</h2>
-          <p class="chapter__body">
-            Three letter folds, chilled between each turn. Twenty-seven sheets of butter, none
-            of them touching.
+        <nav class="progress" aria-label="Chapters" data-progress></nav>
+
+        <div class="copy copy--hero" data-copy>
+          <div class="copy__row">
+            <p class="copy__lead" data-copy-part>
+              Croissants laminated by hand every morning on Rue des Martyrs, Paris&nbsp;9e.
+            </p>
+            <a class="btn" data-copy-part href="https://www.google.com/maps/dir/?api=1&amp;destination=Rue+des+Martyrs%2C+75009+Paris" target="_blank" rel="noopener">Get directions</a>
+          </div>
+          <h1 class="wordmark wordmark--hero" id="title-rolling" data-lines data-wordmark="hero">
+            <span>Maison</span> <span>Laminée</span>
+          </h1>
+        </div>
+
+        <div class="copy" data-copy>
+          <h2 class="copy__title" id="title-folding" data-lines>Layer by layer</h2>
+          <p class="copy__text" data-copy-part>
+            Three letter folds, chilled between each turn: twenty-seven sheets of Normandy butter,
+            none of them touching.
           </p>
         </div>
 
-        <div class="chapter__copy" data-copy>
-          <p class="eyebrow">Façonnage</p>
-          <h2 class="chapter__title" id="title-shaping" data-lines>Shaped by<br />hand.</h2>
-          <p class="chapter__body">
+        <div class="copy" data-copy>
+          <h2 class="copy__title" id="title-shaping" data-lines>Shaped by hand</h2>
+          <p class="copy__text" data-copy-part>
             Cut into long triangles and rolled from base to tip, so the layers spiral around the
             centre.
           </p>
         </div>
 
-        <div class="chapter__copy" data-copy>
-          <p class="eyebrow">Cuisson</p>
-          <h2 class="chapter__title" id="title-baking" data-lines>Baked to<br />rise.</h2>
-          <p class="chapter__body">
+        <div class="copy" data-copy>
+          <h2 class="copy__title" id="title-baking" data-lines>Baked to rise</h2>
+          <p class="copy__text" data-copy-part>
             Eighteen minutes at 190&nbsp;°C. The water in the butter turns to steam and lifts every
             layer apart.
           </p>
         </div>
 
-        <div class="chapter__copy" data-copy>
-          <p class="eyebrow">The crumb</p>
-          <h2 class="chapter__title" id="title-breaking" data-lines>Made to<br />flake.</h2>
-          <p class="chapter__body">
-            Flour, water, milk, sugar, salt, yeast and 25&nbsp;% butter. Nothing else, and
+        <div class="copy" data-copy>
+          <h2 class="copy__title" id="title-breaking" data-lines>Made to flake</h2>
+          <p class="copy__text" data-copy-part>
+            Flour, water, milk, sugar, salt, yeast and butter at 82&nbsp;% fat. Nothing else, and
             nothing to hide.
           </p>
         </div>
 
-        <div class="chapter__copy chapter__copy--center" data-copy>
-          <h2 class="chapter__title" id="title-finale" data-lines>Layers worth<br />breaking.</h2>
-          <p class="chapter__body">
-            Warm from the oven every morning on Rue des Martyrs, Paris&nbsp;9e.
-          </p>
-          <p
-            class="open-status"
-            data-open-status
-            data-timezone="Europe/Paris"
-            data-days="2,3,4,5,6,0"
-            data-opens="07:00"
-            data-closes="14:00"
-          >
-            <span class="open-status__dot" aria-hidden="true"></span>
-            <span data-open-text>Tue–Sun · 7:00–14:00</span>
-          </p>
-          <a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Rue+des+Martyrs%2C+75009+Paris" target="_blank" rel="noopener">Get directions</a>
+        <div class="copy" data-copy>
+          <h2 class="copy__title" id="title-finale" data-lines>Layers worth breaking</h2>
+          <div class="copy__text">
+            <p data-copy-part>Warm from the oven, Tuesday to Sunday from seven.</p>
+            <a class="link" data-copy-part href="#counter">See today’s counter</a>
+          </div>
         </div>
-
-        <div class="scroll-hint" data-scroll-hint aria-hidden="true">
-          <span>Scroll to bake</span>
-          <span class="scroll-hint__track"></span>
-        </div>
-
-        <nav class="progress" aria-label="Chapters" data-progress></nav>
       </div>
 
       <div class="story__chapters">
-        <section class="chapter" data-clip="rolling" aria-labelledby="title-rolling" style="--length: 240"></section>
-        <section class="chapter" id="craft" data-clip="folding" aria-labelledby="title-folding" style="--length: 240"></section>
-        <section class="chapter" id="viennoiserie" data-clip="shaping" aria-labelledby="title-shaping" style="--length: 240"></section>
-        <section class="chapter" data-clip="baking" data-tone="dark" aria-labelledby="title-baking" style="--length: 240"></section>
-        <section class="chapter" id="ingredients" data-clip="breaking" aria-labelledby="title-breaking" style="--length: 240"></section>
-        <section class="chapter" id="visit" data-align="center" aria-labelledby="title-finale" style="--length: 140"></section>
+        <section class="chapter" data-clip="rolling" aria-labelledby="title-rolling" style="--length: 180"></section>
+        <section class="chapter" data-clip="folding" aria-labelledby="title-folding" style="--length: 180"></section>
+        <section class="chapter" data-clip="shaping" aria-labelledby="title-shaping" style="--length: 180"></section>
+        <section class="chapter" data-clip="baking" aria-labelledby="title-baking" style="--length: 180"></section>
+        <section class="chapter" data-clip="breaking" aria-labelledby="title-breaking" style="--length: 180"></section>
+        <section class="chapter" aria-labelledby="title-finale" style="--length: 100"></section>
       </div>
     </main>
 
-    <footer class="footer">
-      <div class="footer__brand">
-        <p class="header__logo">Maison Laminée</p>
-        <p>Viennoiserie au beurre, since 2026.</p>
+    <!-- Three photographs down a falling diagonal, one per day of the process. -->
+    <section class="process" id="process" aria-labelledby="title-process">
+      <h2 class="section-title process__title" id="title-process" data-reveal>
+        Three days, one croissant
+      </h2>
+      <ol class="process__stages">
+        <li class="stage stage--first" data-reveal>
+          <figure class="stage__photo photo" data-reveal-part>
+            <img src="/src/assets/process-dough.webp" width="780" height="1040" alt="A floured ball of croissant dough resting on the bench" fetchpriority="low" data-drift />
+          </figure>
+          <p class="stage__text" data-reveal-part>
+            <strong>On the first evening,</strong> flour, milk, sugar, salt and yeast are mixed into
+            a soft dough and left to rest overnight at 4&nbsp;°C, so it is cold and calm by morning.
+          </p>
+        </li>
+        <li class="stage stage--second" data-reveal>
+          <figure class="stage__photo photo" data-reveal-part>
+            <img src="/src/assets/process-laminated.webp" width="820" height="820" alt="A folded block of laminated dough with thin layers of butter showing at its edge" fetchpriority="low" data-drift />
+          </figure>
+          <p class="stage__text" data-reveal-part>
+            <strong>The next morning,</strong> a sheet of butter is locked inside and folded three
+            times, an hour in the cold between each turn, then cut, rolled and left to proof.
+          </p>
+        </li>
+        <li class="stage stage--third" data-reveal>
+          <figure class="stage__photo photo" data-reveal-part>
+            <img src="/src/assets/process-baked.webp" width="1152" height="720" alt="A deep golden croissant fresh from the oven on a dark baking stone" fetchpriority="low" data-drift />
+          </figure>
+          <p class="stage__text" data-reveal-part>
+            <strong>At seven on the third day,</strong> the first tray comes out of the oven and goes
+            straight to the counter, still crackling as it cools.
+          </p>
+        </li>
+      </ol>
+    </section>
+
+    <!-- The counter: today's prices, pushed into the right-hand columns. -->
+    <section class="counter" id="counter" aria-labelledby="title-counter" data-reveal>
+      <h2 class="section-title counter__title" id="title-counter" data-reveal-part>
+        <span>Today at</span> <span>the counter</span>
+      </h2>
+      <figure class="counter__photo photo" data-reveal-part>
+        <img src="/src/assets/counter-broken.webp" width="1060" height="1325" alt="A croissant broken in two, its honeycomb crumb open, with flakes on the table" fetchpriority="low" data-drift />
+      </figure>
+      <div class="counter__menu" data-reveal-part>
+        <table class="menu" aria-labelledby="title-counter">
+          <thead class="visually-hidden">
+            <tr>
+              <th scope="col">Out of the oven</th>
+              <th scope="col">Pastry</th>
+              <th scope="col">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>From 7:00</td>
+              <th scope="row">Croissant</th>
+              <td>€1.90</td>
+            </tr>
+            <tr>
+              <td>From 7:00</td>
+              <th scope="row">Pain au chocolat</th>
+              <td>€2.10</td>
+            </tr>
+            <tr>
+              <td>From 8:30</td>
+              <th scope="row">Pain aux raisins</th>
+              <td>€2.60</td>
+            </tr>
+            <tr class="menu__group">
+              <td>From 8:30</td>
+              <th scope="row">Chausson aux pommes</th>
+              <td>€2.80</td>
+            </tr>
+            <tr>
+              <td>From 10:00</td>
+              <th scope="row">Croissant aux amandes</th>
+              <td>€3.20</td>
+            </tr>
+            <tr>
+              <td>From 11:30</td>
+              <th scope="row">Kouign-amann</th>
+              <td>€3.40</td>
+            </tr>
+            <tr class="menu__group">
+              <td>All day</td>
+              <th scope="row">Six croissants</th>
+              <td>€10.50</td>
+            </tr>
+            <tr>
+              <td>All day</td>
+              <th scope="row">Twelve, mixed</th>
+              <td>€24.00</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <dl class="footer__info">
+    </section>
+
+    <!-- The address set as display rows; the trays row is live and the last row
+         is the way there. -->
+    <section class="visit" id="visit" aria-labelledby="title-visit">
+      <h2 class="visit__row" id="title-visit">Come by the shop</h2>
+      <address class="visit__address">
+        <p class="visit__row visit__row--alt">Rue des Martyrs</p>
+        <p class="visit__row">75009 Paris</p>
+        <p class="visit__row visit__row--alt">
+          <span>Tuesday–Sunday,</span> <span>7:00–14:00</span>
+        </p>
+      </address>
+      <p
+        class="visit__row"
+        data-open-status
+        data-timezone="Europe/Paris"
+        data-days="2,3,4,5,6,0"
+        data-opens="07:00"
+        data-closes="14:00"
+        data-trays="07:00,08:30,10:00,11:30,13:00"
+      >
+        <span data-open-text>Trays at 7:00, 8:30, 10:00, 11:30 and 13:00</span>
+      </p>
+      <a class="visit__row visit__row--alt visit__row--action" href="https://www.google.com/maps/dir/?api=1&amp;destination=Rue+des+Martyrs%2C+75009+Paris" target="_blank" rel="noopener">
+        Get directions <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" /></svg>
+      </a>
+    </section>
+
+    <footer class="footer">
+      <div class="footer__columns">
         <div>
-          <dt>Boutique</dt>
-          <dd><a href="https://www.google.com/maps/search/?api=1&amp;query=Rue+des+Martyrs%2C+75009+Paris" target="_blank" rel="noopener">Rue des Martyrs, Paris 9e</a></dd>
+          <p>Rue des Martyrs</p>
+          <p>75009 Paris</p>
+        </div>
+        <nav aria-label="Footer">
+          <a href="#process">Process</a>
+          <a href="#counter">Counter</a>
+          <a href="#visit">Visit</a>
+        </nav>
+        <div>
+          <p>Métro</p>
+          <p>Saint-Georges, Pigalle</p>
         </div>
         <div>
-          <dt>Hours</dt>
-          <dd>Tue–Sun · 7:00–14:00</dd>
+          <p>Tuesday–Sunday</p>
+          <p>7:00–14:00, closed Monday</p>
         </div>
-        <div>
-          <dt>Métro</dt>
-          <dd>Saint-Georges · Pigalle</dd>
-        </div>
-      </dl>
+      </div>
+      <p class="wordmark wordmark--footer" aria-hidden="true" data-wordmark="footer">
+        <span>Maison</span> <span>Laminée</span>
+      </p>
+      <p class="footer__legal">© 2026 Maison Laminée · A demonstration brand: prices, tray times and ingredient details are samples.</p>
     </footer>
 
     <script type="module" src="/src/main.js"></script>

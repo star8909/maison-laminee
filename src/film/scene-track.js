@@ -3,12 +3,14 @@
 // finished loading.
 
 export class SceneTrack {
-  constructor(id, urls, focusX) {
+  // `focus` is the point of the frame kept in view when it is cropped, as
+  // `{ x, y }` fractions of its width and height.
+  constructor(id, urls, focus) {
     this.id = id;
     this.urls = urls;
     this.images = new Array(urls.length).fill(null);
     this.requested = new Set();
-    this.focusX = focusX;
+    this.focus = focus;
   }
 
   get isEmpty() {
@@ -19,13 +21,13 @@ export class SceneTrack {
     return this.urls.length - 1;
   }
 
-  // Returns `{ image, focusX }` for `progress` in 0–1, or null before any
+  // Returns `{ image, focus }` for `progress` in 0–1, or null before any
   // frame has loaded.
   frameAt(progress) {
     if (this.isEmpty) return null;
     const clamped = Math.min(1, Math.max(0, progress));
     const image = this.nearestLoaded(Math.round(clamped * this.lastIndex));
-    return image ? { image, focusX: this.focusX } : null;
+    return image ? { image, focus: this.focus } : null;
   }
 
   nearestLoaded(index) {

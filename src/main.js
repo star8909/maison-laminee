@@ -32,6 +32,20 @@ const FORMATS = ['landscape', 'portrait'];
 const portraitQuery = window.matchMedia('(orientation: portrait)');
 const currentFormat = () => (portraitQuery.matches ? 'portrait' : 'landscape');
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// The film is shown in a band shorter than its frames, so each format keeps
+// the part of the frame where its subject sits: portrait renders compose the
+// subject in their lower half.
+const FOCUS = {
+  landscape: { x: 0.5, y: 0.55 },
+  portrait: { x: 0.5, y: 0.7 },
+};
+// The navigation sits over the film's top-right corner; the film is measured
+// there after every frame so the navigation takes the ink that contrasts
+// best. White wins below a relative luminance of about 0.18, black above.
+const NAV_PROBE = { x: 0.5, y: 0, width: 0.5, height: 0.1 };
+const WHITE_INK_BELOW = 0.18;
+// Strong ease-out for entrances: fast to start, long to settle.
+const EASE_OUT = 'expo.out';
 
 // One track per clip, in chapter order. A clip missing the requested format
 // plays whichever format it has, so a partially generated set still plays.
@@ -45,7 +59,7 @@ function createTracks(clipIds, format) {
           `Run: npm run generate -- --format ${format}`,
       );
     }
-    return new SceneTrack(id, used ? available[used] : [], 0.5);
+    return new SceneTrack(id, used ? available[used] : [], FOCUS[used ?? format]);
   });
 }
 
@@ -98,9 +112,8 @@ function createFilm(triggers, renderer) {
 }
 
 // Shows one chapter's copy at a time, in the same place and over the same
-// scroll range as its clip, and mirrors the chapter's tone and copy alignment
-// on the root element for the colours and the scrim. Each chapter has a
-// progress segment that fills as its clip plays. Returns the per-frame update.
+// scroll range as its clip. Each chapter has a progress segment that fills as
+// its clip plays. Returns the per-frame update.
 function setupChapters(chapters, triggers, lenis) {
   const copies = gsap.utils.toArray('[data-copy]');
   if (copies.length !== chapters.length) {
@@ -112,7 +125,7 @@ function setupChapters(chapters, triggers, lenis) {
     const step = document.createElement('button');
     step.type = 'button';
     step.className = 'progress__step';
-    step.setAttribute('aria-label', copies[index].querySelector('.chapter__title').innerText.replace(/\s+/g, ' '));
+    step.setAttribute('aria-label', copies[index].querySelector('[data-lines]').innerText.replace(/\s+/g, ' '));
     step.append(Object.assign(document.createElement('span'), { className: 'progress__fill' }));
     step.addEventListener('click', () => {
       const top = triggers[index].start;
@@ -125,10 +138,12 @@ function setupChapters(chapters, triggers, lenis) {
   const fills = steps.map((step) => step.firstElementChild);
   const filled = fills.map(() => null);
 
-  gsap.set(copies.slice(1), { autoAlpha: 0 });
+  // With reduced motion the copy swaps at once instead of fading.
+  if (prefersReducedMotion) copies.forEach((copy, index) => (copy.hidden = index !== 0));
+  else gsap.set(copies.slice(1), { autoAlpha: 0 });
 
   const reveals = copies.map((copy) => {
-    const parts = copy.querySelectorAll('.eyebrow, .chapter__body, .open-status, .btn');
+    const parts = copy.querySelectorAll('[data-copy-part]');
     const split = SplitText.create(copy.querySelector('[data-lines]'), {
       type: 'lines',
       mask: 'lines',
@@ -136,21 +151,24 @@ function setupChapters(chapters, triggers, lenis) {
     });
     return () => {
       if (prefersReducedMotion) return;
-      gsap.fromTo(split.lines, { yPercent: 100 }, { yPercent: 0, duration: 1, stagger: 0.08, ease: 'expo.out' });
-      gsap.fromTo(parts, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.08, delay: 0.15, ease: 'power3.out' });
+      gsap.fromTo(split.lines, { yPercent: 100 }, { yPercent: 0, duration: 1, stagger: 0.07, ease: EASE_OUT });
+      gsap.fromTo(parts, { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.07, delay: 0.12, ease: EASE_OUT });
     };
   });
 
   let active = 0;
   const activate = (index) => {
     if (index === active) return;
-    gsap.to(copies[active], { autoAlpha: 0, duration: 0.35, ease: 'power2.out', overwrite: true });
-    gsap.to(copies[index], { autoAlpha: 1, duration: 0.35, ease: 'power2.out', overwrite: true });
+    if (prefersReducedMotion) {
+      copies[active].hidden = true;
+      copies[index].hidden = false;
+    } else {
+      gsap.to(copies[active], { autoAlpha: 0, duration: 0.35, ease: 'power2.out', overwrite: true });
+      gsap.to(copies[index], { autoAlpha: 1, duration: 0.35, ease: 'power2.out', overwrite: true });
+    }
     reveals[index]();
     steps[active].removeAttribute('aria-current');
     steps[index].setAttribute('aria-current', 'step');
-    document.documentElement.dataset.tone = chapters[index].dataset.tone ?? 'light';
-    document.documentElement.dataset.align = chapters[index].dataset.align ?? 'left';
     active = index;
   };
   steps[0].setAttribute('aria-current', 'step');
@@ -166,23 +184,68 @@ function setupChapters(chapters, triggers, lenis) {
   };
 }
 
-// The butter card lifts away and fades as the first clip starts.
-function animateHeroPanel() {
-  gsap.to('[data-panel]', {
-    autoAlpha: 0,
-    yPercent: -12,
-    ease: 'power2.inOut',
-    scrollTrigger: { trigger: '[data-clip]', start: 'top top', end: '35% top', scrub: 1 },
+// The signature move: the name is heavy. It settles a few percent smaller as
+// the dough starts rolling above it, and the footer's name grows into place
+// as the footer arrives.
+function animateWordmarks() {
+  if (prefersReducedMotion) return;
+  gsap.to('[data-wordmark="hero"]', {
+    scale: 0.94,
+    ease: 'none',
+    scrollTrigger: { trigger: '[data-clip]', start: 'top top', end: 'bottom top', scrub: true },
   });
+  gsap.fromTo(
+    '[data-wordmark="footer"]',
+    { scale: 0.94 },
+    {
+      scale: 1,
+      ease: 'none',
+      scrollTrigger: { trigger: '[data-wordmark="footer"]', start: 'top bottom', end: 'bottom bottom', scrub: true },
+    },
+  );
 }
 
-// The scroll cue fades out with the first swipe and returns at the top.
-function animateScrollHint() {
-  gsap.to('[data-scroll-hint]', {
-    autoAlpha: 0,
-    ease: 'none',
-    scrollTrigger: { trigger: '[data-clip]', start: 'top top', end: '8% top', scrub: true },
-  });
+// The parts of a revealed group rise into place in reading order as the group
+// arrives; a group without marked parts rises as one. Only position moves:
+// nothing is ever hidden, so a reveal that never fires (a jump past it, a
+// failed script) still leaves the content readable.
+function revealSections() {
+  if (prefersReducedMotion) return;
+  for (const group of gsap.utils.toArray('[data-reveal]')) {
+    const parts = group.querySelectorAll('[data-reveal-part]');
+    gsap.from(parts.length > 0 ? parts : group, {
+      y: 32,
+      duration: 0.9,
+      stagger: 0.07,
+      ease: EASE_OUT,
+      scrollTrigger: { trigger: group, start: 'top 82%', once: true },
+    });
+  }
+}
+
+// Photographs drift slowly inside their frames while they cross the screen.
+// Each is taller than its frame (see .photo in style.css), so it only ever
+// moves vertically within its own overscan.
+function driftPhotos() {
+  if (prefersReducedMotion) return;
+  for (const image of gsap.utils.toArray('[data-drift]')) {
+    gsap.fromTo(
+      image,
+      { yPercent: -6 },
+      {
+        yPercent: 6,
+        ease: 'none',
+        scrollTrigger: { trigger: image.parentElement, start: 'top bottom', end: 'bottom top', scrub: true },
+      },
+    );
+  }
+}
+
+// Mirrors the film's brightness under the navigation on the root element.
+function updateNavInk(luminance) {
+  if (luminance === null) return;
+  const tone = luminance < WHITE_INK_BELOW ? 'dark' : 'light';
+  if (document.documentElement.dataset.tone !== tone) document.documentElement.dataset.tone = tone;
 }
 
 async function init() {
@@ -199,7 +262,8 @@ async function init() {
   };
 
   const triggers = createChapterTriggers(chapters);
-  const film = createFilm(triggers, new CanvasRenderer(document.querySelector('[data-film]')));
+  const renderer = new CanvasRenderer(document.querySelector('[data-film]'), { probe: NAV_PROBE });
+  const film = createFilm(triggers, renderer);
   let loader = loaderFor(currentFormat());
   film.useTracks(loader.tracks);
   loader.start();
@@ -219,10 +283,12 @@ async function init() {
     const chapter = currentChapter(triggers);
     loader.focus(film.render(chapter));
     updateChapters(chapter);
+    updateNavInk(renderer.probeLuminance);
   });
   setupOpenStatus(document.querySelectorAll('[data-open-status]'));
-  animateHeroPanel();
-  animateScrollHint();
+  animateWordmarks();
+  revealSections();
+  driftPhotos();
 }
 
 init();

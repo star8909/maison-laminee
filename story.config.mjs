@@ -142,18 +142,9 @@ export const clips = [
 ];
 
 // Single images used as page decoration (not part of the film), written to
-// src/assets/<id>.webp.
-export const extras = [
-  {
-    id: 'butter-swatch',
-    size: '1024x1536',
-    width: 900,
-    prompt:
-      'Close-up top-down food texture photograph of softened cultured butter swept into thick ' +
-      'glossy swirls with a palette knife, filling the whole frame, warm ivory tones, soft ' +
-      'daylight, photorealistic, no text, no watermark.',
-  },
-];
+// src/assets/<id>.webp. The page's photographs are crops of the film's stills
+// instead (see DESIGN.md), so none are needed.
+export const extras = [];
 
 export const imageSettings = {
   model: 'openai/gpt-image-2.5-flare/text-to-image',
