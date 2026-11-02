@@ -20,9 +20,10 @@ One ground, one ink, one accent. Gold appears on the action only.
 | `--accent-ink` | `#0c0a08` | Text on the accent |
 | `--paper` / `--paper-ink` / `--paper-muted` | `#ffffff` / `#0c0a08` / `#5f5a54` | The inverted footer |
 
-The navigation over the film takes its ink from the film itself: the renderer measures
-the relative luminance under the navigation after every frame, and the ink is white
-below 0.18 and `--bg` above (the contrast crossover between the two).
+Text over the film takes its ink (`--film-ink`) from the film itself: the renderer
+measures the relative luminance under that text after every frame (the navigation's
+corner on wider screens, the upper half on a phone), and the ink is white below 0.18
+and `--bg` above (the contrast crossover between the two).
 
 ## Type
 
@@ -43,7 +44,7 @@ Five steps, plus the name, which is sized to the width it fills:
 
 Measured widths of the name in Imbue at −0.02em tracking: "MAISON LAMINÉE" 4.44em,
 "MAISON" 2.00em, "LAMINÉE" 2.30em (the divisors add 1% to spare). The name is one
-line everywhere except the footer on a phone, where each word fills the width.
+line on wider screens; on a phone it breaks onto two lines, each word filling the width.
 
 ## Space and grid
 
@@ -56,8 +57,8 @@ line everywhere except the footer on a phone, where each word fills the width.
 
 | Part | Composition |
 |---|---|
-| Story stage | Film in the top 58% (62% on a phone); copy in the dark band below; chapter progress on the seam |
-| First screen | One sentence and the gold "Get directions" button on one row; the name across the bottom |
+| Story stage | Film in the top 58% with copy in the dark band below and progress on the seam; on a phone the film fills the screen, copy sits over its clear upper half and progress runs along the bottom |
+| First screen | One sentence and the gold "Get directions" button on one row; the name across the bottom. On a phone the name stands across the top on two lines, the sentence and button at the foot |
 | Process | Three photographs down a falling diagonal from 900px; stacked at 100% / 62% right / 78% left below |
 | Counter | Statement heading, price table in columns 8–12, photograph in 1–4 bottom-aligned |
 | Visit | Full-width display rows on alternating tones; the trays row is live; the last row is the directions link |

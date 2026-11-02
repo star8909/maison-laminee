@@ -55,6 +55,12 @@ export class CanvasRenderer {
     if (this.probe) this.probeLuminance = this.measureProbe();
   }
 
+  // Moves the probe; the next frame drawn is measured there.
+  setProbe(probe) {
+    this.probe = probe;
+    this.last = null;
+  }
+
   measureProbe() {
     const { width, height } = this.canvas;
     const { x, y, width: probeWidth, height: probeHeight } = this.probe;

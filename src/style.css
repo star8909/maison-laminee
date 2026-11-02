@@ -9,6 +9,8 @@
   --muted: #9a958e;
   --accent: #c9a45a;
   --accent-ink: #0c0a08;
+  /* Ink for text laid over the film, switched by its measured brightness. */
+  --film-ink: var(--bg);
   --paper: #ffffff;
   --paper-ink: #0c0a08;
   --paper-muted: #5f5a54;
@@ -198,22 +200,22 @@ img {
   background: var(--surface);
 }
 
-/* Navigation over the film's top-right corner, inked for the chapter's
-   backdrop: dark over the pale bench, white over the oven. */
+/* Navigation over the film's top-right corner, inked for the frame under it:
+   dark over the pale bench, white over the oven (see updateFilmInk). */
 .nav {
   position: absolute;
   top: var(--margin);
   right: var(--margin);
   display: flex;
   gap: 24px;
-  color: var(--bg);
+  color: var(--film-ink);
   font-size: 15px;
   font-weight: 500;
   transition: color 0.6s ease;
 }
 
-:root[data-tone='dark'] .nav {
-  color: var(--ink);
+:root[data-tone='dark'] {
+  --film-ink: var(--ink);
 }
 
 .nav a {
@@ -662,34 +664,49 @@ a.visit__row {
   :root {
     --margin: 16px;
     --gap: 16px;
-    /* The one-line name leaves the band room to spare, so on a phone the
-       film takes more of the screen. */
-    --film-height: 62%;
+    /* On a phone the film fills the screen: its portrait frames keep the
+       upper half clear, and the copy sits there. */
+    --film-height: 100%;
+    --over-film-top: calc(env(safe-area-inset-top, 0px) + 64px);
+    --over-film-bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + var(--toolbar-overlap));
   }
 
   .nav {
     gap: 18px;
   }
 
-  /* The footer has a whole screen, so on a phone its name breaks onto two
-     lines, each filling the width. */
-  .wordmark--footer span {
+  /* On a phone the name breaks onto two lines, each filling the width. */
+  .wordmark span {
     display: block;
   }
 
-  .wordmark--footer span:first-child {
+  .wordmark span:first-child {
     font-size: calc(var(--measure) / 2.03);
   }
 
-  .wordmark--footer span:last-child {
+  .wordmark span:last-child {
     font-size: calc(var(--measure) / 2.33);
   }
 
+  .progress {
+    top: auto;
+    bottom: var(--over-film-bottom);
+  }
+
+  .progress__step {
+    color: var(--film-ink);
+    transition: color 0.6s ease;
+  }
+
+  /* The copy sits over the clear upper half of the film. */
   .copy {
-    top: calc(var(--film-height) + 28px);
+    top: var(--over-film-top);
+    bottom: auto;
     grid-template-columns: minmax(0, 1fr);
     row-gap: 16px;
-    align-content: end;
+    align-content: start;
+    color: var(--film-ink);
+    transition: color 0.6s ease;
   }
 
   .copy__title,
@@ -706,11 +723,23 @@ a.visit__row {
     padding-bottom: 0;
   }
 
+  /* The name across the top, the sentence and the action at the foot of
+     the screen, the dough between them. */
   .copy--hero {
-    top: calc(var(--film-height) + 28px);
+    top: var(--over-film-top);
+    bottom: calc(var(--over-film-bottom) + 40px);
+    grid-template-rows: auto 1fr;
+  }
+
+  .wordmark--hero {
+    grid-row: 1;
+    align-self: start;
+    margin-bottom: 0;
   }
 
   .copy__row {
+    grid-row: 2;
+    align-self: end;
     flex-direction: column;
     gap: 16px;
   }

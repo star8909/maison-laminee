@@ -39,10 +39,14 @@ const FOCUS = {
   landscape: { x: 0.5, y: 0.55 },
   portrait: { x: 0.5, y: 0.7 },
 };
-// The navigation sits over the film's top-right corner; the film is measured
-// there after every frame so the navigation takes the ink that contrasts
-// best. White wins below a relative luminance of about 0.18, black above.
+// Text laid over the film is measured against it after every frame so it
+// takes the ink that contrasts best: white below a relative luminance of
+// about 0.18, black above. On wider screens only the navigation sits over the
+// film (its top-right corner); on a phone the film fills the screen and the
+// copy sits over its upper half too. Matches the phone breakpoint in style.css.
 const NAV_PROBE = { x: 0.5, y: 0, width: 0.5, height: 0.1 };
+const PHONE_PROBE = { x: 0, y: 0, width: 1, height: 0.5 };
+const phoneQuery = window.matchMedia('(max-width: 599px)');
 const WHITE_INK_BELOW = 0.18;
 // Strong ease-out for entrances: fast to start, long to settle.
 const EASE_OUT = 'expo.out';
@@ -241,8 +245,8 @@ function driftPhotos() {
   }
 }
 
-// Mirrors the film's brightness under the navigation on the root element.
-function updateNavInk(luminance) {
+// Mirrors the film's brightness under its overlaid text on the root element.
+function updateFilmInk(luminance) {
   if (luminance === null) return;
   const tone = luminance < WHITE_INK_BELOW ? 'dark' : 'light';
   if (document.documentElement.dataset.tone !== tone) document.documentElement.dataset.tone = tone;
@@ -262,7 +266,9 @@ async function init() {
   };
 
   const triggers = createChapterTriggers(chapters);
-  const renderer = new CanvasRenderer(document.querySelector('[data-film]'), { probe: NAV_PROBE });
+  const probeFor = () => (phoneQuery.matches ? PHONE_PROBE : NAV_PROBE);
+  const renderer = new CanvasRenderer(document.querySelector('[data-film]'), { probe: probeFor() });
+  phoneQuery.addEventListener('change', () => renderer.setProbe(probeFor()));
   const film = createFilm(triggers, renderer);
   let loader = loaderFor(currentFormat());
   film.useTracks(loader.tracks);
@@ -283,7 +289,7 @@ async function init() {
     const chapter = currentChapter(triggers);
     loader.focus(film.render(chapter));
     updateChapters(chapter);
-    updateNavInk(renderer.probeLuminance);
+    updateFilmInk(renderer.probeLuminance);
   });
   setupOpenStatus(document.querySelectorAll('[data-open-status]'));
   animateWordmarks();
